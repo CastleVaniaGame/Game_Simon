@@ -38,17 +38,20 @@ CGameObject::GetBoundingBox
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 
-#define MAX_FRAME_RATE 120
+#define MAX_FRAME_RATE 90
 
 #define ID_TEX_SIMON 0
 #define ID_TEX_SIMON_DEATH 1
 #define ID_TEX_ENEMY 10
 #define ID_TEX_MISC 20
+#define ID_TEX_BG 70
+
+bool jump = false;
+bool attack = false;
 
 CGame *game;
 
 CSIMON *simon;
-
 
 vector<LPGAMEOBJECT> objects;
 
@@ -60,15 +63,41 @@ class CSampleKeyHander : public CKeyEventHandler
 };
 
 CSampleKeyHander * keyHandler;
+DWORD start_attack = 0;
+DWORD end_attack;
+
+int start_jump;
+int end_jump;
 
 void CSampleKeyHander::OnKeyDown(int KeyCode)
 {
 	DebugOut(L"[INFO] KeyDown: %d\n", KeyCode);
+	//if (simon->GetState() == SIMON_STATE_ATTACK) {
+	//	now2 = GetTickCount();
+	//	// dt: the time between (beginning of last frame) and now
+	//	// this frame: the frame we are about to render
+	//	DWORD dt = now2 - now;
+	//	int timer = 260;
+	//	if (dt >= timer)
+	//	{
+	//		now = now2;
+	//		simon->SetState(SIMON_STATE_IDLE);
+	//	}
+	//	else {
+	//		now2 = GetTickCount();
+	//		simon->SetState(SIMON_STATE_ATTACK);
+	//	}
+	//}
 	switch (KeyCode)
 	{
 	case DIK_SPACE:
 	case DIK_NUMPAD8:
+		if (jump == true)
+			break;
+		start_jump = simon->GetY();
 		simon->SetState(SIMON_STATE_JUMP);
+			/*if (simon->GetY() > 100.f)
+				simon->SetState(SIMON_STATE_JUMP);*/
 		break;
 	case DIK_A: // reset
 		simon->SetState(SIMON_STATE_IDLE);
@@ -80,9 +109,10 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		simon->SetState(SIMON_STATE_DIE);
 		simon->SetSpeed(0, 0);
 		break;
-	case DIK_Z :
+	case DIK_C :
 		simon->SetState(SIMON_STATE_ATTACK);
 		simon->SetSpeed(0, 0);
+		break;
 	}
 }
 
@@ -93,13 +123,58 @@ void CSampleKeyHander::OnKeyUp(int KeyCode)
 
 void CSampleKeyHander::KeyState(BYTE *states)
 {
+	
 	// disable control key when SIMON die 
 	if (simon->GetState() == SIMON_STATE_DIE) return;
-	if (game->IsKeyDown(DIK_RIGHT) || game->IsKeyDown(DIK_NUMPAD6))
-		simon->SetState(SIMON_STATE_WALKING_RIGHT);
-	else if (game->IsKeyDown(DIK_LEFT) || game->IsKeyDown(DIK_NUMPAD4))
-		simon->SetState(SIMON_STATE_WALKING_LEFT);
-	else
+	if (simon->GetState() == SIMON_STATE_JUMP){
+		end_jump = simon->GetY();
+		/*	 dt: the time between (beginning of last frame) and now
+		this frame: the frame we are about to render*/
+		DWORD dt = start_jump - end_jump;
+		if (dt >= 30)
+		{
+			jump = false;
+			attack = false;
+			simon->SetState(SIMON_STATE_IDLE);
+		}
+		else {
+			end_jump = simon->GetY();
+			jump = true;
+			simon->SetAni(SIMON_ANI_JUMP_LEFT);
+		}
+	}
+	if (simon->GetState() == SIMON_STATE_ATTACK) {		
+		end_attack = GetTickCount();
+	/*	 dt: the time between (beginning of last frame) and now
+		 this frame: the frame we are about to render*/
+		DWORD dt2 = end_attack - start_attack;
+		if (dt2 >= 300)
+		{
+			attack = false;
+			jump = false;
+			simon->SetState(SIMON_STATE_IDLE);
+		}
+		else {
+			end_attack = GetTickCount();
+			attack = true;
+			//simon->SetState(SIMON_STATE_ATTACK);
+		}
+	}
+	if (game->IsKeyDown(DIK_RIGHT) || game->IsKeyDown(DIK_NUMPAD6)) {
+		if (simon->GetState() != SIMON_STATE_JUMP)
+			simon->SetState(SIMON_STATE_WALKING_RIGHT);
+	}
+	else if (game->IsKeyDown(DIK_LEFT) || game->IsKeyDown(DIK_NUMPAD4)) {
+		if (simon->GetState() != SIMON_STATE_JUMP)
+			simon->SetState(SIMON_STATE_WALKING_LEFT);
+	}
+	else if (game->IsKeyDown(DIK_Z)) {
+		if (attack == true)
+			return;
+		start_attack = GetTickCount();
+		simon->SetState(SIMON_STATE_ATTACK);
+	}
+	else if (simon->GetState() != SIMON_STATE_ATTACK && simon->GetState() != SIMON_STATE_JUMP)
 		simon->SetState(SIMON_STATE_IDLE);
 }
 
@@ -128,7 +203,8 @@ void LoadResources()
 
 	textures->Add(ID_TEX_SIMON, L"textures\\SIMON.png", D3DCOLOR_XRGB(255, 0,255));
 	textures->Add(ID_TEX_SIMON_DEATH, L"textures\\simondeath.png", D3DCOLOR_XRGB(255, 255, 255));
-	textures->Add(ID_TEX_MISC, L"textures\\misc.png", D3DCOLOR_XRGB(255, 2555, 255));
+	textures->Add(ID_TEX_MISC, L"textures\\misc.png", D3DCOLOR_XRGB(255, 255, 255));
+	textures->Add(ID_TEX_BG, L"textures\\state\\bg.png", D3DCOLOR_XRGB(255, 255, 255));
 	/*textures->Add(ID_TEX_ENEMY, L"textures\\enemies.png", D3DCOLOR_XRGB(3, 26, 110));*/
 
 
@@ -141,7 +217,7 @@ void LoadResources()
 	LPDIRECT3DTEXTURE9 texSIMON = textures->Get(ID_TEX_SIMON);
 
 	// right
-	sprites->Add(10001, 315, 202, 343, 261, texSIMON);	
+	sprites->Add(10001, 315, 202, 350, 261, texSIMON);	
 	sprites->Add(10002, 378, 202, 401, 261, texSIMON);
 	sprites->Add(10003, 436, 202, 468, 261, texSIMON);
 	sprites->Add(10004, 378, 202, 401, 261, texSIMON);
@@ -149,12 +225,14 @@ void LoadResources()
 
 	//left
 	sprites->Add(10011, 136, 5, 166, 64, texSIMON);
-	sprites->Add(10012, 79, 5, 101, 64, texSIMON);
+	sprites->Add(10012, 77, 1, 101, 64, texSIMON);
 	sprites->Add(10013, 12, 5, 43, 64, texSIMON);
 	sprites->Add(10012, 79, 5, 101, 64, texSIMON);
 
-	//jump
-	sprites->Add(10021, 251, 1, 284, 87, texSIMON);
+	//jump right
+	sprites->Add(10021, 196, 199, 228, 244, texSIMON);
+	//jump left
+	sprites->Add(10022, 252, 1, 284, 46, texSIMON);
 
 	//attack left
 	sprites->Add(10031, 312, 4, 359, 63, texSIMON);
@@ -172,9 +250,13 @@ void LoadResources()
 	//die left
 	sprites->Add(10099, 64, 6, 127, 65, texSIMONDEATH);
 
-
 	LPDIRECT3DTEXTURE9 texMisc = textures->Get(ID_TEX_MISC);
-	sprites->Add(20001, 408, 225, 424, 241, texMisc);
+	//misc
+	sprites->Add(20000, 0, 0, 32, 32, texMisc);
+
+
+	LPDIRECT3DTEXTURE9 textBG = textures->Get(ID_TEX_BG);
+	sprites->Add(20001, 0, 0, 2816, 177, textBG);
 
 	//LPDIRECT3DTEXTURE9 texEnemy = textures->Get(ID_TEX_ENEMY);
 	//sprites->Add(30001, 5, 14, 21, 29, texEnemy);
@@ -183,6 +265,10 @@ void LoadResources()
 	//sprites->Add(30003, 45, 21, 61, 29, texEnemy); // die sprite
 
 	LPANIMATION ani;
+	ani = new CAnimation(100);	//BG
+	ani->Add(20001);
+	animations->Add(700, ani);
+
 
 	ani = new CAnimation(100);	// idle big right
 	ani->Add(10001);
@@ -192,12 +278,12 @@ void LoadResources()
 	ani->Add(10011);
 	animations->Add(401, ani);
 
-	ani = new CAnimation(100);	//jump
+	ani = new CAnimation(100);	//jump right
 	ani->Add(10021);
 	animations->Add(405, ani);
 
-	ani = new CAnimation(100);	//jump
-	ani->Add(10021);
+	ani = new CAnimation(100);	//jump left
+	ani->Add(10022);
 	animations->Add(406, ani);
 
 	ani = new CAnimation(100);	// walk right big
@@ -233,7 +319,7 @@ void LoadResources()
 	animations->Add(410, ani);
 
 	ani = new CAnimation(100);		// brick
-	ani->Add(20001);
+	ani->Add(20000);
 	animations->Add(601, ani);
 
 	//ani = new CAnimation(300);		// Goomba walk
@@ -246,14 +332,14 @@ void LoadResources()
 	//animations->Add(702, ani);
 
 	simon = new CSIMON();
-	simon->AddAnimation(400);		// idle right big
-	simon->AddAnimation(401);		// idle left big
+	simon->AddAnimation(400);		// idle right 
+	simon->AddAnimation(401);		// idle left 
 
-	simon->AddAnimation(403);       //jump
-	simon->AddAnimation(404);       //jump
+	simon->AddAnimation(403);      // walk right 
+	simon->AddAnimation(404);      // walk left 
 
-	simon->AddAnimation(405);		// walk right big
-	simon->AddAnimation(406);		// walk left big
+	simon->AddAnimation(405);		 //jump right
+	simon->AddAnimation(406);		 //jump left
 	
 	simon->AddAnimation(407);		// die right
 	simon->AddAnimation(408);		// die left
@@ -261,33 +347,22 @@ void LoadResources()
 	simon->AddAnimation(409);		// attack right
 	simon->AddAnimation(410);		// attack left
 
+	//CBrick *background = new CBrick();
+	//background->AddAnimation(700);
+	//background->SetPosition(0.0f, 0.47f);
+	//objects.push_back(background);
+
 	simon->SetPosition(50.0f, 0);
 	objects.push_back(simon);
 
-	/*for (int i = 0; i < 5; i++)
-	{
-		CBrick *brick = new CBrick();
-		brick = new CBrick();
-		brick->AddAnimation(601);
-		brick->SetPosition(84 + i*48.0f, 90);
-		objects.push_back(brick);
 
-
-	}*/
-
-
-	for (int i = 0; i < 15; i++)
+	/*for (int i = 0; i < 15; i++)
 	{
 		CBrick *brick = new CBrick();
 		brick->AddAnimation(601);
 		brick->SetPosition(0 + i*16.0f, 150);
 		objects.push_back(brick);
-
-
-		
-
-	}
-
+	}*/
 	// and Goombas 
 	/*for (int i = 0; i < 4; i++)
 	{
@@ -307,18 +382,7 @@ dt: time period between beginning of last frame and beginning of this frame
 */
 void Update(DWORD dt)
 {
-	// We know that SIMON is the first object in the list hence we won't add him into the colliable object list
-	// TO-DO: This is a "dirty" way, need a more organized way 
-	vector<LPGAMEOBJECT> coObjects;
-	for (int i = 1; i < objects.size(); i++)
-	{
-		coObjects.push_back(objects[i]);
-	}
-
-	for (int i = 0; i < objects.size(); i++)
-	{
-		objects[i]->Update(dt, &coObjects);
-	}
+	simon->Update(dt);
 }
 
 /*
@@ -421,9 +485,7 @@ int Run()
 		if (dt >= tickPerFrame)
 		{
 			frameStart = now;
-
 			game->ProcessKeyboard();
-
 			Update(dt);
 			Render();
 		}

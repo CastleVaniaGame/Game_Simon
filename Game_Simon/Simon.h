@@ -1,11 +1,11 @@
 #pragma once
 #include "GameObject.h"
 
-#define SIMON_WALKING_SPEED		0.1f 
+#define SIMON_WALKING_SPEED		2.1f 
 //0.1f
-#define SIMON_JUMP_SPEED_Y		0.5f
-#define SIMON_JUMP_DEFLECT_SPEED 0.2f
-#define SIMON_GRAVITY			 0.1f
+#define SIMON_JUMP_SPEED_Y		5.f
+#define SIMON_JUMP_DEFLECT_SPEED 1.2f
+#define SIMON_GRAVITY			 0.2f
 #define SIMON_DIE_DEFLECT_SPEED	 0.5f
 
 #define SIMON_STATE_IDLE			0
@@ -29,8 +29,8 @@
 
 
 
-#define SIMON_BBOX_WIDTH  50
-#define SIMON_BBOX_HEIGHT 20
+#define SIMON_BBOX_WIDTH  13//28
+#define SIMON_BBOX_HEIGHT 15//59
 
 //#define SIMON_SMALL_BBOX_WIDTH  20
 //#define SIMON_SMALL_BBOX_HEIGHT 25
@@ -55,4 +55,8 @@ public:
 	//void SetLevel(int l) { level = l; }
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
+	virtual int GetX();
+	virtual int GetY();
+	void SetAni(int Ani);
+
 };
