@@ -285,7 +285,7 @@ void CGame::SweptAABB(
 	if (t_entry > t_exit) return;
 
 	t = t_entry;
-
+	 
 	if (tx_entry > ty_entry)
 	{
 		ny = 0.0f;
