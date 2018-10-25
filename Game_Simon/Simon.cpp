@@ -40,16 +40,28 @@ void CSIMON::Render()
 		}
 		else
 			ani = SIMON_ANI_ATTACK_LEFT;
-	}			
-	else if (state == SIMON_STATE_JUMP) {
-		if (nx == 1) {
-			ani = SIMON_ANI_JUMP_RIGHT;			
-		}
-		else {
-			ani = SIMON_ANI_JUMP_LEFT;			
-		}
-		y += SIMON_JUMP_SPEED_Y;
 	}
+	else if (state == SIMON_STATE_WALKING_JUMP_RIGHT) {
+		nx = 1;
+		ani = SIMON_ANI_JUMP_RIGHT;
+		x += vx;
+		y += vy;
+	}
+	else if (state == SIMON_STATE_WALKING_JUMP_LEFT) {
+		nx = -1;
+		ani = SIMON_ANI_JUMP_LEFT;
+		x += vx;
+		y += vy;
+	}
+	else if (state == SIMON_STATE_JUMP) {
+			if (nx == 1) {
+				ani = SIMON_ANI_JUMP_RIGHT;			
+			}
+			else {
+				ani = SIMON_ANI_JUMP_LEFT;
+			}
+			y += vy;
+		}
 	else if (vx == 0)
 	{
 		if (nx>0) ani = SIMON_ANI_IDLE_RIGHT;
@@ -57,12 +69,12 @@ void CSIMON::Render()
 	}
 	else if (vx > 0) {
 		ani = SIMON_ANI_WALKING_RIGHT;
-		x += SIMON_WALKING_SPEED;
+		x += vx;
 	}
 				
 	else { 	
 		ani = SIMON_ANI_WALKING_LEFT;
-		x-= SIMON_WALKING_SPEED;
+		x += vx;
 	}
 
 	
@@ -77,17 +89,19 @@ void CSIMON::SetState(int state)
 	switch (state)
 	{
 	case SIMON_STATE_WALKING_RIGHT:
+	case SIMON_STATE_WALKING_JUMP_RIGHT:
 		vx = SIMON_WALKING_SPEED;
 		nx = 1;
 		break;
 	case SIMON_STATE_WALKING_LEFT:
+	case SIMON_STATE_WALKING_JUMP_LEFT:
 		vx = -SIMON_WALKING_SPEED;
 		nx = -1;
 		break;
 	case SIMON_STATE_JUMP:
 		vy = -SIMON_JUMP_SPEED_Y;
 	case SIMON_STATE_IDLE:
-	//case SIMON_STATE_ATTACK :
+	case SIMON_STATE_ATTACK :
 		vx = 0;
 		break;
 	case SIMON_STATE_DIE:
@@ -112,6 +126,11 @@ int CSIMON::GetX()
 int CSIMON::GetY()
 {
 	return y;
+}
+
+void CSIMON::SetY(int vt)
+{
+	y += vt;
 }
 
 void CSIMON::SetAni(int Ani)

@@ -12,8 +12,10 @@
 #define SIMON_STATE_WALKING_RIGHT	100
 #define SIMON_STATE_WALKING_LEFT	200
 #define SIMON_STATE_JUMP			300
-#define SIMON_STATE_DIE				400
-#define SIMON_STATE_ATTACK			500
+#define SIMON_STATE_WALKING_JUMP_RIGHT    400
+#define SIMON_STATE_WALKING_JUMP_LEFT 500
+#define SIMON_STATE_DIE				600
+#define SIMON_STATE_ATTACK			700
 
 
 #define SIMON_ANI_IDLE_RIGHT			0
@@ -55,8 +57,9 @@ public:
 	//void SetLevel(int l) { level = l; }
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
-	virtual int GetX();
-	virtual int GetY();
+	int GetX();
+	int GetY();
+	void SetY(int vt);
 	void SetAni(int Ani);
 
 };
