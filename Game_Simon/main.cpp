@@ -80,7 +80,10 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 			break;
 		jump = true;
 		start_jump = simon->GetY();
-		simon->SetState(SIMON_STATE_JUMP);
+		if (game->IsKeyDown(DIK_RIGHT) || game->IsKeyDown(DIK_NUMPAD6) || game->IsKeyDown(DIK_LEFT) || game->IsKeyDown(DIK_NUMPAD4)) {
+			simon->SetState(SIMON_STATE_WALKING_JUMP);
+		}else
+			simon->SetState(SIMON_STATE_JUMP);
 			/*if (simon->GetY() > 100.f)
 				simon->SetState(SIMON_STATE_JUMP);*/
 		break;
@@ -136,7 +139,7 @@ void CSampleKeyHander::KeyState(BYTE *states)
 		if (dt2 >= 300)
 		{
 			attack = false;
-			jump = false;
+			//jump = false;
 			simon->SetState(SIMON_STATE_IDLE);
 		}
 		else {
@@ -151,19 +154,6 @@ void CSampleKeyHander::KeyState(BYTE *states)
 		start_attack = GetTickCount();
 		simon->SetState(SIMON_STATE_ATTACK);
 	}
-	/*else if (jump == true) {
-		return;
-	}*/
-	else if ((game->IsKeyDown(DIK_RIGHT) || game->IsKeyDown(DIK_NUMPAD6)) && (game->IsKeyDown(DIK_SPACE) || game->IsKeyDown(DIK_NUMPAD8))) {
-		start_jump = simon->GetY();		
-		simon->SetState(SIMON_STATE_WALKING_JUMP_RIGHT);
-		jump = true;
-	}
-	else if ((game->IsKeyDown(DIK_LEFT) || game->IsKeyDown(DIK_NUMPAD4)) && (game->IsKeyDown(DIK_SPACE) || game->IsKeyDown(DIK_NUMPAD8))) {
-		start_jump = simon->GetY();
-		simon->SetState(SIMON_STATE_WALKING_JUMP_LEFT);
-		jump = true;
-	}
 	else if (jump == true) {
 		return;
 	}
@@ -171,7 +161,6 @@ void CSampleKeyHander::KeyState(BYTE *states)
 			simon->SetState(SIMON_STATE_WALKING_RIGHT);
 	}
 	else if (game->IsKeyDown(DIK_LEFT) || game->IsKeyDown(DIK_NUMPAD4)) {
-		/*if (simon->GetState() != SIMON_STATE_JUMP)*/
 			simon->SetState(SIMON_STATE_WALKING_LEFT);
 	}
 	else if (simon->GetState() != SIMON_STATE_ATTACK && simon->GetState() != SIMON_STATE_JUMP)
