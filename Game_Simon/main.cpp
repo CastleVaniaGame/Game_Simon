@@ -209,14 +209,14 @@ void LoadResources()
 	sprites->Add(10001, 315, 202, 350, 261, texSIMON);	
 	sprites->Add(10002, 378, 202, 401, 261, texSIMON);
 	sprites->Add(10003, 436, 202, 468, 261, texSIMON);
-	sprites->Add(10004, 378, 202, 401, 261, texSIMON);
+	//sprites->Add(10002, 378, 202, 401, 261, texSIMON);
 	
 
 	//left
 	sprites->Add(10011, 136, 5, 166, 64, texSIMON);
-	sprites->Add(10012, 77, 1, 101, 64, texSIMON);
+	sprites->Add(10012, 77, 5, 101, 64, texSIMON);
 	sprites->Add(10013, 12, 5, 43, 64, texSIMON);
-	sprites->Add(10012, 79, 5, 101, 64, texSIMON);
+	//sprites->Add(10012, 79, 5, 101, 64, texSIMON);
 
 	//jump right
 	sprites->Add(10021, 196, 199, 228, 244, texSIMON);
@@ -279,12 +279,14 @@ void LoadResources()
 	ani->Add(10001);
 	ani->Add(10002);
 	ani->Add(10003);
+	ani->Add(10002);	
 	animations->Add(403, ani);
 
 	ani = new CAnimation(100);	// // walk left big
 	ani->Add(10011);
 	ani->Add(10012);
 	ani->Add(10013);
+	ani->Add(10012);
 	animations->Add(404, ani);
 
 	ani = new CAnimation(100);		// SIMON die left
