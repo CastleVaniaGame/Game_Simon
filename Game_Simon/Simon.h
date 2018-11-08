@@ -14,7 +14,8 @@
 #define SIMON_STATE_JUMP			300
 #define SIMON_STATE_WALKING_JUMP    400
 #define SIMON_STATE_DIE				500
-#define SIMON_STATE_ATTACK		600
+#define SIMON_STATE_ATTACK			600
+#define SIMON_STATE_SIT				700
 
 
 #define SIMON_ANI_IDLE_RIGHT			0
@@ -59,6 +60,7 @@ public:
 	int GetX();
 	int GetY();
 	void SetY(int vt);
+	void SetX(int vt);
 	void SetAni(int Ani);
 
 };

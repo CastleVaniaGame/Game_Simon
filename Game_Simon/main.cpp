@@ -97,10 +97,10 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		simon->SetState(SIMON_STATE_DIE);
 		simon->SetSpeed(0, 0);
 		break;
-	case DIK_C :
+	/*case DIK_C :
 		simon->SetState(SIMON_STATE_ATTACK);
 		simon->SetSpeed(0, 0);
-		break;
+		break;*/
 	}
 }
 
@@ -156,6 +156,9 @@ void CSampleKeyHander::KeyState(BYTE *states)
 	}
 	else if (jump == true) {
 		return;
+	}
+	else if (game->IsKeyDown(DIK_DOWN) || game->IsKeyDown(DIK_NUMPAD2)) {
+		simon->SetState(SIMON_STATE_SIT);
 	}
 	else if (game->IsKeyDown(DIK_RIGHT) || game->IsKeyDown(DIK_NUMPAD6)) {
 			simon->SetState(SIMON_STATE_WALKING_RIGHT);
@@ -221,7 +224,7 @@ void LoadResources()
 	//jump right
 	sprites->Add(10021, 196, 199, 228, 244, texSIMON);
 	//jump left
-	sprites->Add(10022, 252, 1, 284, 46, texSIMON);
+	sprites->Add(10022, 251, 0, 284, 47, texSIMON);
 
 	//attack left
 	sprites->Add(10031, 312, 4, 359, 63, texSIMON);
@@ -276,10 +279,11 @@ void LoadResources()
 	animations->Add(406, ani);
 
 	ani = new CAnimation(100);	// walk right big
+	
+	ani->Add(10003);
+	ani->Add(10002);
 	ani->Add(10001);
 	ani->Add(10002);
-	ani->Add(10003);
-	ani->Add(10002);	
 	animations->Add(403, ani);
 
 	ani = new CAnimation(100);	// // walk left big
@@ -338,10 +342,10 @@ void LoadResources()
 	simon->AddAnimation(409);		// attack right
 	simon->AddAnimation(410);		// attack left
 
-	//CBrick *background = new CBrick();
-	//background->AddAnimation(700);
-	//background->SetPosition(0.0f, 0.47f);
-	//objects.push_back(background);
+	CBrick *background = new CBrick();
+	background->AddAnimation(700);
+	background->SetPosition(0.0f, 0.47f);
+	objects.push_back(background);
 
 	simon->SetPosition(50.0f, 0);
 	objects.push_back(simon);

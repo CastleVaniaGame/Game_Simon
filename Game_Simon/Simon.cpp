@@ -18,9 +18,11 @@ void CSIMON::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	if (y > 100)
 	{
 		vy = 0;
-		y = 100.f ;
-	}
-
+		if (state == SIMON_STATE_SIT)
+			y = 117.0f;	
+		else 	
+			y = 100.f;
+	}	
 	// simple screen edge collision!!!
 	if (vx > 0 && x > 290) x = 290;
 	if (vx < 0 && x < 0) x = 0;
@@ -41,7 +43,7 @@ void CSIMON::Render()
 		else
 			ani = SIMON_ANI_ATTACK_LEFT;
 	}
-	else if (state == SIMON_STATE_WALKING_JUMP) {
+	else if (state == SIMON_STATE_WALKING_JUMP || state == SIMON_STATE_SIT) {
 		if (nx == 1) {
 			ani = SIMON_ANI_JUMP_RIGHT;
 		}
@@ -85,6 +87,10 @@ void CSIMON::SetState(int state)
 
 	switch (state)
 	{
+	case SIMON_STATE_SIT:
+		vx = 0;
+		vy = 0;
+		break;
 	case SIMON_STATE_WALKING_RIGHT:
 		vx = SIMON_WALKING_SPEED;
 		nx = 1;
@@ -135,7 +141,12 @@ int CSIMON::GetY()
 
 void CSIMON::SetY(int vt)
 {
-	y += vt;
+	y = vt;
+}
+
+void CSIMON::SetX(int vt)
+{
+	x = vt;
 }
 
 void CSIMON::SetAni(int Ani)
